@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_CLI_EXPERIMENTAL = 'enabled' // Enable Docker experimental features if needed
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    // Use SSH credentials to clone the repo
+                    sshagent(['your-ssh-credential-id']) {
+                        git 'git@github.com:amitshrestha1/lms.git'
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    // Build Docker images
+                    docker.build('nginx-image', './nginx')
+                    docker.build('mysql-image', './mysql')
+                    docker.build('app-image', './app')
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    // Run tests, adjust according to your setup
+                    sh 'docker-compose -f docker-compose.yml run --rm app npm test'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Deploy the application, adjust according to your setup
+                    sh 'docker-compose -f docker-compose.yml up -d'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Cleanup
+            sh 'docker-compose -f docker-compose.yml down'
+        }
+    }
+}
