@@ -10,7 +10,7 @@ pipeline {
             steps {
                 script {
                     // Use SSH credentials to clone the repo
-                    sshagent(['amit-auth']) {
+                    sshagent(['github-auth']) {
                         git 'git@github.com:amitshrestha1/lms.git'
                     }
                 }
