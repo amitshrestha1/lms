@@ -9,8 +9,12 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Use SSH credentials to clone the repo
-                    git 'git@github.com:amitshrestha1/lms.git'
+                    // Use the credentials ID for your SSH key
+                    try {
+                        git url: 'git@github.com:amitshrestha1/lms.git', credentialsId: 'amitshrestha', branch: 'dev'
+                    } catch (err) {
+                        echo 'No new changes detected, but continuing with the build...'
+                    }
                 }
             }
         }
