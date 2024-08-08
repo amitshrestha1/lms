@@ -1,11 +1,18 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_CLI_EXPERIMENTAL = 'enabled'
-    }
+    
 
     stages {
+        stage('Verifying Tool') {
+            steps{
+                sh '''
+                    docker info
+                    docker version
+                    docker compose version
+                '''
+            }
+        }
         stage('Checkout') {
             steps {
                 script {
@@ -20,12 +27,21 @@ pipeline {
         }
 
 
-        stage('Build Docker Images') {
+        stage("Clear all running docker containers") {
             steps {
                 script {
-                    // Build the Laravel environment image using the specified Dockerfile
-                    docker.build('laravel-env-image', './leavemgmtsys/dockerfiles/Dockerfile')
+                    try {
+                        sh 'docker rm -f $(docker ps -a -q)'
+                    } catch (Exception e) {
+                        echo 'No running container to clear up...'
+                    }
                 }
+            }
+        }
+        stage("Start Docker") {
+            steps {
+                sh 'docker compose up'
+                sh 'docker compose ps'
             }
         }
 
@@ -33,7 +49,7 @@ pipeline {
             steps {
                 script {
                     // Run tests using docker-compose
-                    sh 'docker-compose -f ./leavemgmtsys/docker-compose.yaml run --rm laravel-env npm test'
+                    sh 'docker-compose run --rm artisan test'
                 }
             }
         }
@@ -51,7 +67,7 @@ pipeline {
     post {
         always {
             // Cleanup
-            sh 'docker-compose -f ./leavemgmtsys/docker-compose.yaml down'
+            sh 'docker-compose down'
         }
     }
 }
