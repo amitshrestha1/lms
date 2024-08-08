@@ -10,7 +10,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        git url: 'git@github.com:amitshrestha1/lms.git', credentialsId: 'your-ssh-credentials-id', branch: 'dev'
+                        git url: 'git@github.com:amitshrestha1/lms.git', credentialsId: 'amitshrestha', branch: 'dev'
                         sh 'ls -al'  // List files to verify the structure
                     } catch (err) {
                         echo 'No new changes detected, but continuing with the build...'
