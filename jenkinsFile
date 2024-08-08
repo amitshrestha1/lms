@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     // Build the Laravel environment image using the specified Dockerfile
-                    docker.build('laravel-env-image', './leavemgmtsys')
+                    docker.build('laravel-env-image', './leavemgmtsys/dockerfiles/Dockerfile')
                 }
             }
         }
