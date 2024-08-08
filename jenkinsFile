@@ -2,19 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CLI_EXPERIMENTAL = 'enabled' // Enable Docker experimental features if needed
+        DOCKER_CLI_EXPERIMENTAL = 'enabled'
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    // Use the credentials ID for your SSH key
-                    try {
-                        git url: 'git@github.com:amitshrestha1/lms.git', credentialsId: 'amitshrestha', branch: 'dev'
-                    } catch (err) {
-                        echo 'No new changes detected, but continuing with the build...'
-                    }
+                    git 'git@github.com:amitshrestha1/lms.git'
                 }
             }
         }
@@ -22,10 +17,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    // Build Docker images
-                    docker.build('nginx-image', './nginx')
-                    docker.build('mysql-image', './mysql')
-                    docker.build('app-image', './app')
+                    // Build the Laravel environment image using the specified Dockerfile
+                    docker.build('laravel-env-image', './leavemgmtsys')
                 }
             }
         }
@@ -33,8 +26,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Run tests, adjust according to your setup
-                    sh 'docker-compose -f docker-compose.yml run --rm app npm test'
+                    // Run tests using docker-compose
+                    sh 'docker-compose -f ./leavemgmtsys/docker-compose.yaml run --rm laravel-env npm test'
                 }
             }
         }
@@ -42,8 +35,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Deploy the application, adjust according to your setup
-                    sh 'docker-compose -f docker-compose.yml up -d'
+                    // Deploy the application using docker-compose
+                    sh 'docker-compose -f ./leavemgmtsys/docker-compose.yaml up -d'
                 }
             }
         }
@@ -52,7 +45,7 @@ pipeline {
     post {
         always {
             // Cleanup
-            sh 'docker-compose -f docker-compose.yml down'
+            sh 'docker-compose -f ./leavemgmtsys/docker-compose.yaml down'
         }
     }
 }
