@@ -10,8 +10,7 @@ pipeline {
             steps {
                 script {
                     // Use SSH credentials to clone the repo
-                        git 'git@github.com:amitshrestha1/lms.git'
-                    }
+                    git 'git@github.com:amitshrestha1/lms.git'
                 }
             }
         }
