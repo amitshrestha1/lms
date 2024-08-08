@@ -9,10 +9,16 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    git 'git@github.com:amitshrestha1/lms.git'
+                    try {
+                        git url: 'git@github.com:amitshrestha1/lms.git', credentialsId: 'your-ssh-credentials-id', branch: 'dev'
+                        sh 'ls -al'  // List files to verify the structure
+                    } catch (err) {
+                        echo 'No new changes detected, but continuing with the build...'
+                    }
+                    }
                 }
-            }
         }
+
 
         stage('Build Docker Images') {
             steps {
